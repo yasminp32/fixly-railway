@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: fixly-backend
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    autoDeployTrigger: commit
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py migrate --no-input && python manage.py collectstatic --no-input && gunicorn mobileservice.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120
+    healthCheckPath: /admin/login/
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.10"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fixly-db
+          property: connectionString
+
+databases:
+  - name: fixly-db
+    databaseName: mobileshopdb
+    plan: free
+    region: oregon
+    postgresMajorVersion: "16"
+    ipAllowList: []
