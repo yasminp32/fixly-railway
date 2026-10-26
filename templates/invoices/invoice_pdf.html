@@ -1,0 +1,331 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    @page { size: A4; margin: 14mm; }
+
+    body{
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: #0f172a;
+      margin: 0;
+      padding: 0;
+    }
+
+    .page{
+      border: 1px solid #0b1220;
+      background: #fff;
+    }
+
+    /* xhtml2pdf-safe bars (waves removed) */
+    .top-bar{ height: 22px; background: #0f2f54; }
+    .bottom-bar{ height: 22px; background: #1e4d86; margin-top: 14px; }
+
+    .content{ padding: 18px 22px 10px 22px; }
+
+    .h-title{
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin: 0 0 6px 0;
+    }
+
+    .small{
+      font-size: 11px;
+      color: #475569;
+      line-height: 1.55;
+    }
+
+    .logo{ width: 170px; height: auto; }
+
+    .box{
+      border: 1px solid #cfd8e3;
+      background: #fff;
+    }
+    .box .head{
+      background: #f6f8fc;
+      border-bottom: 1px solid #cfd8e3;
+      padding: 8px 10px;
+      font-weight: 900;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    .box .body{
+      padding: 10px 10px;
+      line-height: 1.55;
+    }
+
+    .name{ font-weight: 900; margin-bottom: 2px; }
+
+    .items{
+      margin-top: 16px;
+      border: 1px solid #cfd8e3;
+      background: #fff;
+    }
+
+    table{ width: 100%; border-collapse: collapse; }
+    th{
+      background: #1e4d86;
+      color: #fff;
+      padding: 9px 10px;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-align: left;
+    }
+    td{
+      padding: 9px 10px;
+      border-bottom: 1px solid #cfd8e3;
+      vertical-align: top;
+    }
+    .right{ text-align: right; }
+    .item-title{ font-weight: 900; margin-bottom: 2px; }
+
+    .notes{
+      border: 1px solid #cfd8e3;
+      padding: 10px 12px;
+      background: #fff;
+      min-height: 120px;
+    }
+    .label{
+      font-weight: 900;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: .4px;
+    }
+    .ital{ font-style: italic; }
+
+    .totals{
+      border: 1px solid #cfd8e3;
+      background: #fff;
+    }
+    .trow{
+      padding: 8px 10px;
+      border-bottom: 1px solid #cfd8e3;
+      font-size: 12px;
+    }
+    .trow .val{ float: right; }
+    .trow:last-child{ border-bottom: none; }
+    .neg{ color:#b91c1c; }
+
+    .total-bar{
+      margin-top: 10px;
+      background: #1e4d86;
+      color: #fff;
+      padding: 10px 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .total-bar .val{ float:right; }
+
+    .footer-note{
+      margin-top: 10px;
+      font-size: 10.5px;
+      color: #475569;
+      text-align:right;
+    }
+
+    /* tax summary simple */
+    .tax-box{ padding: 8px 10px; border-top: 1px solid #cfd8e3; }
+    .tax-title{ font-weight: 900; margin-bottom: 6px; }
+    .tax-row{ padding: 3px 0; }
+    .tax-row .val{ float:right; }
+    .clearfix{ clear: both; height: 0; line-height: 0; }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="top-bar"></div>
+
+    <div class="content">
+
+      <!-- HEADER (table layout) -->
+      <table style="width:100%;">
+        <tr>
+          <td style="vertical-align:top;">
+            <div class="h-title">INVOICE</div>
+            <div class="small">
+              Invoice Number: <b>{{ invoice.invoice_number }}</b><br/>
+              Date: <b>{{ invoice.invoice_date }}</b>
+            </div>
+          </td>
+          <td style="vertical-align:top; text-align:right;">
+            {% if logo_url %}
+              <img class="logo" src="{{ logo_url }}" alt="logo" />
+            {% else %}
+              <div style="font-weight:900; font-size:16px;">{{ company_name|default:"Nabeel org" }}</div>
+              <div class="small">{{ company_state|default:"Kerala" }}, {{ company_country|default:"India" }}</div>
+              <div class="small">{{ company_email|default:"" }}</div>
+            {% endif %}
+          </td>
+        </tr>
+      </table>
+
+      <!-- BILL TO + PAYMENT INFO (table layout) -->
+      <table style="width:100%; margin-top:14px;">
+        <tr>
+          <td style="width:50%; padding-right:7px; vertical-align:top;">
+            <div class="box">
+              <div class="head">Bill To</div>
+              <div class="body">
+                <div class="name">{{ invoice.customer.name }}</div>
+                {% if invoice.customer.email %}<div class="small">{{ invoice.customer.email }}</div>{% endif %}
+                {% if invoice.customer.phone %}<div class="small">{{ invoice.customer.phone }}</div>{% endif %}
+                {% if invoice.customer.state %}<div class="small">{{ invoice.customer.state }}</div>{% endif %}
+                <div class="small">India</div>
+              </div>
+            </div>
+          </td>
+
+          <td style="width:50%; padding-left:7px; vertical-align:top;">
+            <div class="box">
+              <div class="head">Payment Information</div>
+              <div class="body">
+                <div><b>Terms:</b> {{ terms|default:"Custom" }}</div>
+                <div><b>Due Date:</b> {{ invoice.due_date|default:"-" }}</div>
+                <div><b>Status:</b> {{ invoice.status }}</div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ITEMS -->
+      <div class="items">
+        <table>
+          <colgroup>
+            <col style="width:50px;">
+            <col>
+            <col style="width:70px;">
+            <col style="width:90px;">
+            <col style="width:110px;">
+            <col style="width:80px;">
+            <col style="width:120px;">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Service</th>
+              <th>GST</th>
+              <th class="right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for line in lines %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>
+                <div class="item-title">{{ line.item.name }}</div>
+                {% if line.description %}
+                  <div class="small" style="margin-top:4px;">
+                    {{ line.description|linebreaksbr }}
+                  </div>
+                {% endif %}
+              </td>
+              <td>{{ line.qty }}</td>
+              <td>{{ line.rate }}</td>
+              <td>{{ line.service_charge_amount }}</td>
+              <td>
+                {% if line.gst_treatment and line.gst_treatment != "NO_TAX" %}
+                  {{ line.gst_treatment }}%
+                {% else %}
+                  0%
+                {% endif %}
+              </td>
+              <td class="right">{{ line.line_total }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- BOTTOM (table layout) -->
+      <table style="width:100%; margin-top:16px;">
+        <tr>
+          <td style="width:62%; padding-right:7px; vertical-align:top;">
+            <div class="notes">
+              <div class="label">Total In Words</div>
+              <div class="ital" style="margin-bottom: 14px;">
+                {{ total_in_words|default:"-" }}
+              </div>
+
+              <div class="label">Terms and Conditions</div>
+              <div class="small">
+                {% if terms_conditions %}
+                  {{ terms_conditions|linebreaksbr }}
+                {% else %}
+                  -
+                {% endif %}
+              </div>
+              <div class="small">{{ notes|default:"Thanks for your business." }}</div>
+            </div>
+          </td>
+
+          <td style="width:38%; padding-left:7px; vertical-align:top;">
+            <div class="totals">
+              <div class="trow">Sub Total <span class="val">{{ currency_symbol|default:"₹" }}{{ invoice.sub_total }}</span><div class="clearfix"></div></div>
+              <div class="trow">Discount <span class="val neg">(-) {{ currency_symbol|default:"₹" }}{{ invoice.discount_amount }}</span><div class="clearfix"></div></div>
+              <div class="trow">Service Charge <span class="val">{{ currency_symbol|default:"₹" }}{{ invoice.service_charge_total }}</span><div class="clearfix"></div></div>
+
+              {% if gst_rows %}
+                <div class="tax-box">
+                  <div class="tax-title">Tax Summary</div>
+
+                  {% for r in gst_rows %}
+                    {% if r.mode == "IGST" %}
+                      <div class="tax-row">
+                        IGST @ {{ r.igst_rate }}% on {{ currency_symbol|default:"₹" }}{{ r.taxable }}
+                        <span class="val">{{ currency_symbol|default:"₹" }}{{ r.igst_tax }}</span>
+                        <div class="clearfix"></div>
+                      </div>
+                    {% else %}
+                      <div class="tax-row">
+                        CGST @ {{ r.cgst_rate }}% on {{ currency_symbol|default:"₹" }}{{ r.taxable }}
+                        <span class="val">{{ currency_symbol|default:"₹" }}{{ r.cgst_tax }}</span>
+                        <div class="clearfix"></div>
+                      </div>
+                      <div class="tax-row">
+                        SGST @ {{ r.sgst_rate }}% on {{ currency_symbol|default:"₹" }}{{ r.taxable }}
+                        <span class="val">{{ currency_symbol|default:"₹" }}{{ r.sgst_tax }}</span>
+                        <div class="clearfix"></div>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+
+                <div class="trow" style="font-weight:900;">
+                  Total Tax
+                  <span class="val">{{ currency_symbol|default:"₹" }}{{ total_tax|default:"0.00" }}</span>
+                  <div class="clearfix"></div>
+                </div>
+              {% else %}
+                <div class="trow">Tax <span class="val">{{ currency_symbol|default:"₹" }}0.00</span><div class="clearfix"></div></div>
+              {% endif %}
+            </div>
+
+            <div class="total-bar">
+              Total <span class="val">{{ currency_symbol|default:"₹" }}{{ invoice.grand_total }}</span>
+              <div class="clearfix"></div>
+            </div>
+
+            <div class="footer-note">
+              Balance Due: <b>{{ currency_symbol|default:"₹" }}{{ invoice.grand_total }}</b>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+    </div>
+
+    <div class="bottom-bar"></div>
+  </div>
+</body>
+</html>
