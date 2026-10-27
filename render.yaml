@@ -7,7 +7,7 @@ services:
     branch: main
     autoDeployTrigger: commit
     buildCommand: pip install -r requirements.txt
-    startCommand: python manage.py migrate --no-input && python manage.py collectstatic --no-input && gunicorn mobileservice.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120
+    startCommand: if [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then python manage.py createsuperuser --noinput || true; fi && python manage.py migrate --no-input && python manage.py collectstatic --no-input && gunicorn mobileservice.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 120
     healthCheckPath: /admin/login/
     envVars:
       - key: PYTHON_VERSION
