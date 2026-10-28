@@ -527,6 +527,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
      "https://kannottil.com",
      "https://www.kannottil.com",
+     "https://fixlymobiles.com",
+     "https://www.fixlymobiles.com",
 ] + env_list("CORS_ALLOWED_ORIGINS")
 
 CORS_ALLOWED_ORIGIN_REGEXES = [
@@ -548,6 +550,8 @@ CSRF_TRUSTED_ORIGINS = [
    "https://kannottil.com",
    "https://www.kannottil.com",
    "https://api.kannottil.com",
+   "https://fixlymobiles.com",
+   "https://www.fixlymobiles.com",
     "http://127.0.0.1",
 ] + env_list("CSRF_TRUSTED_ORIGINS")
 if RAILWAY_PUBLIC_DOMAIN:
